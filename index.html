@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yapılacaklar ✨</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #FFF8F0;
+    --card: #FFFFFF;
+    --ink: #2B2250;
+    --ink-soft: #6E6489;
+    --purple: #7B61FF;
+    --purple-light: #EFEAFF;
+    --coral: #FF6B6B;
+    --coral-light: #FFE7E7;
+    --yellow: #FFD93D;
+    --yellow-light: #FFF6D6;
+    --teal: #06D6A0;
+    --teal-light: #DFFAF1;
+    --border: #ECE6FB;
+    --shadow: 0 6px 18px rgba(123,97,255,0.10);
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    font-family: 'Nunito', sans-serif;
+    background:
+      radial-gradient(circle at 15% 8%, #FFEFD6 0%, transparent 40%),
+      radial-gradient(circle at 90% 5%, #E6F9F1 0%, transparent 35%),
+      var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 28px 16px 80px;
+  }
+  .wrap{ max-width: 560px; margin: 0 auto; }
+
+  /* HEADER */
+  .header{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:14px; margin-bottom:22px;
+  }
+  .title{
+    font-family:'Baloo 2', sans-serif; font-weight:800; font-size:26px;
+    margin:0; letter-spacing:-0.3px;
+  }
+  .subtitle{ margin:2px 0 0; color:var(--ink-soft); font-size:14px; font-weight:600; }
+  .streak{
+    display:flex; align-items:center; gap:6px;
+    background: linear-gradient(135deg,#FFE9C7,#FFD93D);
+    padding:8px 14px; border-radius:999px; font-family:'Baloo 2';
+    font-weight:700; font-size:15px; color:#7A4B00; white-space:nowrap;
+    box-shadow: var(--shadow);
+  }
+  .header-right{ display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+  .sync-badge{
+    display:flex; align-items:center; gap:4px; background: var(--purple-light);
+    color: var(--purple); padding:5px 12px; border-radius:999px; font-size:12px;
+    font-weight:800; cursor:pointer; white-space:nowrap; transition: all .15s;
+  }
+  .sync-badge:hover{ background:#E1DBFF; }
+
+  .sync-overlay{
+    position:fixed; inset:0; background:rgba(43,34,80,0.55); display:none;
+    align-items:center; justify-content:center; z-index:2000; padding:20px;
+  }
+  .sync-overlay.show{ display:flex; }
+  .sync-box{
+    background: var(--card); border-radius:22px; padding:26px 22px; max-width:380px;
+    width:100%; position:relative; box-shadow: var(--shadow);
+  }
+  .sync-title{ font-family:'Baloo 2'; font-weight:800; font-size:19px; margin:0 0 8px; }
+  .sync-desc{ font-size:13.5px; color:var(--ink-soft); font-weight:600; margin:0 0 14px; line-height:1.5; }
+  .sync-box input[type=text]{ width:100%; }
+  .sync-full-btn{ width:100%; margin-top:12px; }
+  .sync-random-btn{
+    width:100%; margin-top:8px; background:var(--teal-light); color:#04795A;
+    border:none; border-radius:14px; padding:11px 0; font-family:'Baloo 2';
+    font-weight:700; font-size:14px; cursor:pointer; transition: background .15s;
+  }
+  .sync-random-btn:hover{ background:#c9f2e3; }
+  .sync-close-btn{
+    position:absolute; top:14px; right:14px; border:none; background:transparent;
+    color:var(--ink-soft); font-size:16px; cursor:pointer; padding:4px; display:none;
+  }
+  .sync-error{ color:var(--coral); font-size:12.5px; font-weight:700; min-height:16px; margin-top:6px; }
+
+  /* PROGRESS RING CARD */
+  .progress-card{
+    background: var(--card); border-radius:22px; padding:20px;
+    display:flex; align-items:center; gap:18px; box-shadow: var(--shadow);
+    margin-bottom:20px; border: 1px solid var(--border);
+  }
+  .ring-wrap{ position:relative; width:84px; height:84px; flex-shrink:0; }
+  .ring-wrap svg{ transform: rotate(-90deg); }
+  .ring-bg{ fill:none; stroke: var(--purple-light); stroke-width:9; }
+  .ring-fg{ fill:none; stroke: url(#gradRing); stroke-width:9; stroke-linecap:round;
+    transition: stroke-dashoffset 0.6s cubic-bezier(.34,1.56,.64,1); }
+  .ring-label{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:'Baloo 2'; font-weight:700; font-size:18px;
+  }
+  .progress-text{ flex:1; }
+  .progress-text .big{ font-family:'Baloo 2'; font-weight:700; font-size:17px; margin:0 0 3px; }
+  .progress-text .small{ margin:0; color:var(--ink-soft); font-size:13.5px; font-weight:600; }
+
+  /* ADD FORM */
+  .add-card{
+    background: var(--card); border-radius:22px; padding:18px;
+    box-shadow: var(--shadow); margin-bottom:18px; border: 1px solid var(--border);
+  }
+  .add-row1{ display:flex; gap:8px; margin-bottom:10px; }
+  input[type=text]{
+    flex:1; border: 2px solid var(--border); border-radius:14px; padding:12px 14px;
+    font-family:'Nunito'; font-size:15px; font-weight:700; color:var(--ink);
+    outline:none; transition: border-color .15s;
+    background: #FDFBFF;
+  }
+  input[type=text]:focus{ border-color: var(--purple); }
+  input[type=text]::placeholder{ color:#B6ADD1; font-weight:600; }
+  .add-btn{
+    background: var(--purple); color:white; border:none; border-radius:14px;
+    padding:0 20px; font-family:'Baloo 2'; font-weight:700; font-size:15px;
+    cursor:pointer; transition: transform .12s, background .15s;
+  }
+  .add-btn:hover{ background:#6a4ff0; }
+  .add-btn:active{ transform: scale(0.94); }
+  .add-row2{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  select, input[type=date], input[type=time]{
+    border: 2px solid var(--border); border-radius:12px; padding:8px 10px;
+    font-family:'Nunito'; font-weight:700; font-size:13px; color:var(--ink-soft);
+    background:#FDFBFF; outline:none; cursor:pointer;
+  }
+  .prio-toggle{
+    display:flex; align-items:center; gap:6px; border:2px solid var(--border);
+    border-radius:12px; padding:8px 12px; font-size:13px; font-weight:700;
+    color: var(--ink-soft); cursor:pointer; user-select:none; background:#FDFBFF;
+    transition: all .15s;
+  }
+  .prio-toggle.active{ background: var(--yellow-light); border-color: var(--yellow); color:#8A6A00; }
+
+  /* FILTER CHIPS */
+  .filters{ display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+  .chip{
+    padding:7px 14px; border-radius:999px; font-size:13px; font-weight:700;
+    border:2px solid var(--border); color:var(--ink-soft); cursor:pointer;
+    background:var(--card); transition: all .15s; white-space:nowrap;
+  }
+  .chip.active{ background: var(--ink); color:white; border-color: var(--ink); }
+
+  /* TABS */
+  .tabs{
+    display:flex; gap:6px; background: var(--purple-light); border-radius:14px;
+    padding:4px; margin-bottom:14px;
+  }
+  .tab{
+    flex:1; text-align:center; padding:9px 0; border-radius:11px; cursor:pointer;
+    font-family:'Baloo 2'; font-weight:700; font-size:14px; color:var(--purple);
+    transition: all .15s;
+  }
+  .tab.active{ background:white; color:var(--ink); box-shadow: var(--shadow); }
+
+  /* SEARCH */
+  .search-input{
+    width:100%; border: 2px solid var(--border); border-radius:14px; padding:11px 14px;
+    font-family:'Nunito'; font-size:14px; font-weight:700; color:var(--ink);
+    outline:none; transition: border-color .15s; background: #FDFBFF;
+    margin-bottom:14px;
+  }
+  .search-input:focus{ border-color: var(--purple); }
+  .search-input::placeholder{ color:#B6ADD1; font-weight:600; }
+
+  /* TASK LIST */
+  .task{
+    background: var(--card); border-radius:18px; padding:14px 16px;
+    display:flex; align-items:flex-start; gap:12px; margin-bottom:10px;
+    box-shadow: var(--shadow); border: 1px solid var(--border);
+    animation: pop-in .25s ease;
+    transition: opacity .3s, transform .3s;
+  }
+  @keyframes pop-in{ from{ opacity:0; transform: translateY(6px) scale(0.98); } to{ opacity:1; transform:none; } }
+  .task.done{ opacity:0.55; }
+  .checkbox{
+    width:26px; height:26px; border-radius:50%; border:2.5px solid var(--purple);
+    flex-shrink:0; margin-top:2px; cursor:pointer; display:flex; align-items:center;
+    justify-content:center; transition: all .15s; background:white;
+  }
+  .checkbox.checked{ background: var(--purple); }
+  .checkbox svg{ width:14px; height:14px; opacity:0; transition: opacity .1s; }
+  .checkbox.checked svg{ opacity:1; }
+  .task-body{ flex:1; min-width:0; }
+  .task-text{
+    font-weight:700; font-size:15.5px; margin:0 0 6px; word-break:break-word;
+  }
+  .task.done .task-text{ text-decoration: line-through; color: var(--ink-soft); }
+  .task-meta{ display:flex; gap:6px; flex-wrap:wrap; }
+  .badge{
+    font-size:11.5px; font-weight:800; padding:3px 9px; border-radius:999px;
+    display:inline-flex; align-items:center; gap:3px;
+  }
+  .badge.cat-is{ background:var(--purple-light); color:#4B3AA8; }
+  .badge.cat-kisisel{ background:var(--teal-light); color:#04795A; }
+  .badge.cat-saglik{ background:var(--coral-light); color:#B23C3C; }
+  .badge.cat-diger{ background:var(--yellow-light); color:#8A6A00; }
+  .badge.prio{ background:var(--yellow-light); color:#8A6A00; }
+  .badge.due{ background:#F1EFFB; color:#6E6489; }
+  .badge.due.overdue{ background:var(--coral-light); color:#B23C3C; }
+  .badge.repeat{ background:var(--teal-light); color:#04795A; }
+  .badge.archived-date{ background:#F1EFFB; color:#6E6489; }
+  .restore-btn{
+    border:none; background:var(--teal-light); cursor:pointer; padding:7px 12px;
+    color:#04795A; flex-shrink:0; border-radius:10px; transition: all .15s;
+    font-family:'Baloo 2'; font-weight:700; font-size:12.5px; display:flex;
+    align-items:center; gap:4px; white-space:nowrap;
+  }
+  .restore-btn:hover{ background:#c9f2e3; }
+  .del-btn{
+    border:none; background:transparent; cursor:pointer; padding:6px;
+    color:#CFC7E8; flex-shrink:0; border-radius:8px; transition: all .15s;
+  }
+  .del-btn:hover{ color:var(--coral); background:var(--coral-light); }
+
+  .empty{
+    text-align:center; padding:50px 20px; color: var(--ink-soft);
+  }
+  .empty .emoji{ font-size:44px; margin-bottom:10px; }
+  .empty p{ font-weight:700; margin:4px 0; }
+
+  #confetti-layer{ position:fixed; inset:0; pointer-events:none; z-index:999; }
+  .toast{
+    position:fixed; left:50%; bottom:28px; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color:white; padding:10px 18px; border-radius:999px;
+    font-family:'Baloo 2'; font-weight:700; font-size:14px; opacity:0;
+    transition: all .3s; pointer-events:none; z-index:1000; white-space:nowrap;
+  }
+  .toast.show{ opacity:1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div id="confetti-layer"></div>
+<div class="toast" id="toast"></div>
+
+<div class="wrap">
+  <div class="header">
+    <div>
+      <p class="title">Yapılacaklar ✨</p>
+      <p class="subtitle" id="dateLabel"></p>
+    </div>
+    <div class="header-right">
+      <div class="streak" id="streakBadge">🔥 0 gün</div>
+      <div class="sync-badge" id="syncBadge" title="Senkron kodunu değiştir">🔗 ...</div>
+    </div>
+  </div>
+
+  <div class="sync-overlay" id="syncOverlay">
+    <div class="sync-box">
+      <button class="sync-close-btn" id="syncCloseBtn">✕</button>
+      <p class="sync-title">🔗 Senkronizasyon kodu</p>
+      <p class="sync-desc">Görevlerini farklı cihaz veya tarayıcılardan görmek için bir kod belirle. Aynı kodu her yerde kullanınca aynı listeyi görürsün.</p>
+      <input type="text" id="syncCodeInput" placeholder="örn: gulnur-2026" maxlength="40">
+      <div class="sync-error" id="syncError"></div>
+      <button id="syncConnectBtn" class="add-btn sync-full-btn">Bağlan</button>
+      <button id="syncRandomBtn" class="sync-random-btn">🎲 Rastgele kod oluştur</button>
+    </div>
+  </div>
+
+  <div class="progress-card">
+    <div class="ring-wrap">
+      <svg width="84" height="84" viewBox="0 0 84 84">
+        <defs>
+          <linearGradient id="gradRing" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FF6B6B"/>
+            <stop offset="50%" stop-color="#FFD93D"/>
+            <stop offset="100%" stop-color="#06D6A0"/>
+          </linearGradient>
+        </defs>
+        <circle class="ring-bg" cx="42" cy="42" r="36"></circle>
+        <circle class="ring-fg" id="ringFg" cx="42" cy="42" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"></circle>
+      </svg>
+      <div class="ring-label" id="ringLabel">0%</div>
+    </div>
+    <div class="progress-text">
+      <p class="big" id="progressBig">Henüz görev yok</p>
+      <p class="small" id="progressSmall">Aşağıdan ilk görevini ekle 👇</p>
+    </div>
+  </div>
+
+  <div class="add-card">
+    <div class="add-row1">
+      <input type="text" id="taskInput" placeholder="Ne yapman gerekiyor?" maxlength="120">
+      <button class="add-btn" id="addBtn">Ekle</button>
+    </div>
+    <div class="add-row2">
+      <select id="catSelect">
+        <option value="is">💼 İş</option>
+        <option value="kisisel">🌱 Kişisel</option>
+        <option value="saglik">💪 Sağlık</option>
+        <option value="diger">✨ Diğer</option>
+      </select>
+      <div class="prio-toggle" id="prioToggle">⭐ Önemli</div>
+      <input type="date" id="dateInput">
+      <input type="time" id="timeInput">
+      <select id="repeatSelect">
+        <option value="none">Tekrar yok</option>
+        <option value="daily">🔁 Her gün</option>
+        <option value="weekly">🔁 Her hafta</option>
+        <option value="monthly">🔁 Her ay</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-tab="active">📋 Aktif</div>
+    <div class="tab" data-tab="archive">📦 Arşiv</div>
+  </div>
+
+  <input type="text" id="searchInput" class="search-input" placeholder="🔍 Görevlerde ara...">
+
+  <div class="filters" id="filters">
+    <div class="chip active" data-filter="all">Tümü</div>
+    <div class="chip" data-filter="is">💼 İş</div>
+    <div class="chip" data-filter="kisisel">🌱 Kişisel</div>
+    <div class="chip" data-filter="saglik">💪 Sağlık</div>
+    <div class="chip" data-filter="diger">✨ Diğer</div>
+  </div>
+
+  <div id="taskList"></div>
+</div>
+
+<script>
+const CAT_INFO = {
+  is: { label: '💼 İş', cls: 'cat-is' },
+  kisisel: { label: '🌱 Kişisel', cls: 'cat-kisisel' },
+  saglik: { label: '💪 Sağlık', cls: 'cat-saglik' },
+  diger: { label: '✨ Diğer', cls: 'cat-diger' },
+};
+
+let tasks = [];
+let history = [];
+let streakData = { dates: [] };
+let activeFilter = 'all';
+let activeTab = 'active';
+let searchQuery = '';
+let prioActive = false;
+
+const taskInput = document.getElementById('taskInput');
+const addBtn = document.getElementById('addBtn');
+const catSelect = document.getElementById('catSelect');
+const dateInput = document.getElementById('dateInput');
+const timeInput = document.getElementById('timeInput');
+const repeatSelect = document.getElementById('repeatSelect');
+const prioToggle = document.getElementById('prioToggle');
+const taskList = document.getElementById('taskList');
+const filters = document.getElementById('filters');
+const tabs = document.getElementById('tabs');
+const searchInput = document.getElementById('searchInput');
+const addCard = document.querySelector('.add-card');
+const toast = document.getElementById('toast');
+
+const FIREBASE_URL = 'https://to-do-15952-default-rtdb.firebaseio.com';
+let syncCode = null;
+const syncOverlay = document.getElementById('syncOverlay');
+const syncCodeInput = document.getElementById('syncCodeInput');
+const syncError = document.getElementById('syncError');
+const syncConnectBtn = document.getElementById('syncConnectBtn');
+const syncRandomBtn = document.getElementById('syncRandomBtn');
+const syncCloseBtn = document.getElementById('syncCloseBtn');
+const syncBadge = document.getElementById('syncBadge');
+
+const REPEAT_INFO = {
+  daily: '🔁 Her gün',
+  weekly: '🔁 Her hafta',
+  monthly: '🔁 Her ay',
+};
+
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+document.getElementById('dateLabel').textContent = new Date().toLocaleDateString('tr-TR', { weekday:'long', day:'numeric', month:'long' });
+
+function dbPath(code){ return FIREBASE_URL + '/data/' + encodeURIComponent(code) + '.json'; }
+
+async function fetchRemote(code){
+  const res = await fetch(dbPath(code));
+  if(!res.ok) throw new Error('fetch failed');
+  return await res.json();
+}
+
+async function pushRemote(code, payload){
+  const res = await fetch(dbPath(code), {
+    method:'PUT',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  });
+  if(!res.ok) throw new Error('push failed');
+}
+
+function randomCode(){
+  const words = ['ay','gun','yildiz','deniz','orman','ates','ruzgar','bulut','tepe','nehir','papatya','kelebek'];
+  return words[Math.floor(Math.random()*words.length)] + '-' + Math.floor(1000+Math.random()*9000);
+}
+
+function updateSyncBadge(){ syncBadge.textContent = '🔗 ' + syncCode; }
+
+function openSyncModal(){
+  syncError.textContent = '';
+  syncCodeInput.value = syncCode || '';
+  syncCloseBtn.style.display = syncCode ? '' : 'none';
+  syncOverlay.classList.add('show');
+}
+function closeSyncModal(){ syncOverlay.classList.remove('show'); }
+
+async function setSyncCode(code){
+  syncCode = code;
+  localStorage.setItem('todo:synccode', code);
+  updateSyncBadge();
+  closeSyncModal();
+  await loadRemoteData();
+  showToast('Bağlandı: ' + code);
+}
+
+async function loadRemoteData(){
+  try{
+    const remote = await fetchRemote(syncCode);
+    if(remote){
+      tasks = remote.tasks || [];
+      history = remote.history || [];
+      streakData = remote.streakData || { dates: [] };
+    } else {
+      tasks = []; history = []; streakData = { dates: [] };
+    }
+    try{ localStorage.setItem('todo:cache:'+syncCode, JSON.stringify({tasks,history,streakData})); }catch(e){}
+  }catch(e){
+    console.error(e);
+    showToast('Bağlanılamadı, yerel kopya gösteriliyor');
+    try{
+      const c = localStorage.getItem('todo:cache:'+syncCode);
+      const cached = c ? JSON.parse(c) : null;
+      tasks = (cached && cached.tasks) || [];
+      history = (cached && cached.history) || [];
+      streakData = (cached && cached.streakData) || { dates: [] };
+    }catch(e2){ tasks=[]; history=[]; streakData={dates:[]}; }
+  }
+  render();
+}
+
+async function persist(){
+  try{ localStorage.setItem('todo:cache:'+syncCode, JSON.stringify({tasks,history,streakData})); }
+  catch(e){ console.error(e); }
+  if(!syncCode) return;
+  try{ await pushRemote(syncCode, {tasks,history,streakData}); }
+  catch(e){ console.error(e); showToast('Senkron edilemedi, bağlantını kontrol et'); }
+}
+
+syncConnectBtn.addEventListener('click', ()=>{
+  const val = syncCodeInput.value.trim();
+  if(!val){ syncError.textContent = 'Bir kod yaz ya da rastgele oluştur'; return; }
+  setSyncCode(val);
+});
+syncRandomBtn.addEventListener('click', ()=>{
+  const val = randomCode();
+  syncCodeInput.value = val;
+  setSyncCode(val);
+});
+syncCloseBtn.addEventListener('click', closeSyncModal);
+syncBadge.addEventListener('click', openSyncModal);
+syncCodeInput.addEventListener('keydown', e => { if(e.key === 'Enter') syncConnectBtn.click(); });
+
+function nextDueDate(dueStr, repeat){
+  const base = dueStr ? new Date(dueStr+'T00:00:00') : new Date();
+  if(repeat === 'daily') base.setDate(base.getDate()+1);
+  else if(repeat === 'weekly') base.setDate(base.getDate()+7);
+  else if(repeat === 'monthly') base.setMonth(base.getMonth()+1);
+  return base.getFullYear()+'-'+String(base.getMonth()+1).padStart(2,'0')+'-'+String(base.getDate()).padStart(2,'0');
+}
+
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=> toast.classList.remove('show'), 1800);
+}
+
+function computeStreak(){
+  const set = new Set(streakData.dates);
+  let streak = 0;
+  let d = new Date();
+  if(!set.has(todayStr())){
+    d.setDate(d.getDate()-1);
+  }
+  while(true){
+    const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    if(set.has(key)){ streak++; d.setDate(d.getDate()-1); } else break;
+  }
+  return streak;
+}
+
+function matchesSearch(text){
+  if(!searchQuery) return true;
+  return text.toLocaleLowerCase('tr').includes(searchQuery.toLocaleLowerCase('tr'));
+}
+
+function render(){
+  const streak = computeStreak();
+  document.getElementById('streakBadge').textContent = '🔥 ' + streak + ' gün';
+  addCard.style.display = activeTab === 'active' ? '' : 'none';
+
+  const activeTotal = tasks.length;
+  const activeDone = tasks.filter(t=>t.done).length;
+  const everTotal = activeTotal + history.length;
+  const pct = everTotal ? Math.round((history.length/everTotal)*100) : 0;
+
+  const circumference = 226.2;
+  const offset = circumference - (pct/100)*circumference;
+  document.getElementById('ringFg').style.strokeDashoffset = offset;
+  document.getElementById('ringLabel').textContent = pct + '%';
+
+  const big = document.getElementById('progressBig');
+  const small = document.getElementById('progressSmall');
+  if(activeTotal === 0 && history.length === 0){
+    big.textContent = 'Henüz görev yok';
+    small.textContent = 'Yukarıdan ilk görevini ekle 👇';
+  } else if(activeTotal === 0){
+    big.textContent = 'Aktif görev yok 🎉';
+    small.textContent = history.length + ' görev arşivde birikti.';
+  } else {
+    const doneToday = history.filter(h => {
+      const d = new Date(h.completedAt);
+      return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0') === todayStr();
+    }).length;
+    big.textContent = (activeTotal-activeDone) + ' görev bekliyor';
+    small.textContent = doneToday > 0 ? 'Bugün ' + doneToday + ' görev bitirdin, devam et 💪' : 'Bugün henüz görev bitirmedin, başlayalım 👇';
+  }
+
+  if(activeTab === 'active') renderActiveList();
+  else renderArchiveList();
+}
+
+function renderActiveList(){
+  let list = activeFilter === 'all' ? tasks : tasks.filter(t => t.cat === activeFilter);
+  list = list.filter(t => matchesSearch(t.text));
+
+  taskList.innerHTML = '';
+  if(list.length === 0){
+    const msg = searchQuery ? 'Aramanla eşleşen görev yok' : 'Bu kategoride görev yok';
+    taskList.innerHTML = '<div class="empty"><div class="emoji">🌤️</div><p>'+msg+'</p></div>';
+    return;
+  }
+
+  const sorted = [...list].sort((a,b)=>{
+    if(a.prio !== b.prio) return a.prio ? -1 : 1;
+    return b.createdAt - a.createdAt;
+  });
+
+  sorted.forEach(t=>{
+    const el = document.createElement('div');
+    el.className = 'task';
+    const cat = CAT_INFO[t.cat];
+    let dueHtml = '';
+    if(t.due){
+      const overdue = t.due < todayStr();
+      const dd = new Date(t.due+'T00:00:00');
+      const label = dd.toLocaleDateString('tr-TR', { day:'numeric', month:'short' }) + (t.time ? ', ' + t.time : '');
+      dueHtml = '<span class="badge due' + (overdue ? ' overdue' : '') + '">📅 ' + label + '</span>';
+    } else if(t.time){
+      dueHtml = '<span class="badge due">🕐 ' + t.time + '</span>';
+    }
+    const repeatHtml = (t.repeat && t.repeat !== 'none') ? '<span class="badge repeat">' + REPEAT_INFO[t.repeat] + '</span>' : '';
+    el.innerHTML =
+      '<div class="checkbox" data-id="' + t.id + '">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5 9-9"/></svg>' +
+      '</div>' +
+      '<div class="task-body">' +
+        '<p class="task-text">' + escapeHtml(t.text) + '</p>' +
+        '<div class="task-meta">' +
+          '<span class="badge ' + cat.cls + '">' + cat.label + '</span>' +
+          (t.prio ? '<span class="badge prio">⭐ Önemli</span>' : '') +
+          repeatHtml + dueHtml +
+        '</div>' +
+      '</div>' +
+      '<button class="del-btn" data-id="' + t.id + '"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/></svg></button>';
+    taskList.appendChild(el);
+  });
+}
+
+function renderArchiveList(){
+  let list = activeFilter === 'all' ? history : history.filter(h => h.cat === activeFilter);
+  list = list.filter(h => matchesSearch(h.text));
+  list = [...list].sort((a,b)=> b.completedAt - a.completedAt);
+
+  taskList.innerHTML = '';
+  if(list.length === 0){
+    const msg = searchQuery ? 'Aramanla eşleşen arşiv kaydı yok' : 'Arşiv henüz boş, tamamladığın görevler burada birikecek';
+    taskList.innerHTML = '<div class="empty"><div class="emoji">📦</div><p>'+msg+'</p></div>';
+    return;
+  }
+
+  list.forEach(h=>{
+    const el = document.createElement('div');
+    el.className = 'task done';
+    const cat = CAT_INFO[h.cat];
+    const cd = new Date(h.completedAt);
+    const dateLabel = cd.toLocaleDateString('tr-TR', { day:'numeric', month:'short' }) + ' · ' + cd.toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' });
+    el.innerHTML =
+      '<div class="checkbox checked">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5 9-9"/></svg>' +
+      '</div>' +
+      '<div class="task-body">' +
+        '<p class="task-text">' + escapeHtml(h.text) + '</p>' +
+        '<div class="task-meta">' +
+          '<span class="badge ' + cat.cls + '">' + cat.label + '</span>' +
+          '<span class="badge archived-date">✅ ' + dateLabel + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<button class="restore-btn" data-id="' + h.id + '">↺ Geri al</button>';
+    taskList.appendChild(el);
+  });
+}
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+async function addTask(){
+  const text = taskInput.value.trim();
+  if(!text){
+    taskInput.focus();
+    taskInput.style.borderColor = '#FF6B6B';
+    setTimeout(()=> taskInput.style.borderColor = '', 800);
+    return;
+  }
+  tasks.push({
+    id: 't' + Date.now() + Math.random().toString(36).slice(2,7),
+    text, cat: catSelect.value, prio: prioActive,
+    due: dateInput.value || null, time: timeInput.value || null,
+    repeat: repeatSelect.value, done:false, createdAt: Date.now()
+  });
+  taskInput.value = '';
+  prioActive = false;
+  prioToggle.classList.remove('active');
+  dateInput.value = '';
+  timeInput.value = '';
+  repeatSelect.value = 'none';
+  await persist();
+  render();
+}
+
+addBtn.addEventListener('click', addTask);
+taskInput.addEventListener('keydown', e => { if(e.key === 'Enter') addTask(); });
+prioToggle.addEventListener('click', ()=>{
+  prioActive = !prioActive;
+  prioToggle.classList.toggle('active', prioActive);
+});
+
+filters.addEventListener('click', e=>{
+  const chip = e.target.closest('.chip');
+  if(!chip) return;
+  activeFilter = chip.dataset.filter;
+  [...filters.children].forEach(c=>c.classList.toggle('active', c===chip));
+  render();
+});
+
+tabs.addEventListener('click', e=>{
+  const tab = e.target.closest('.tab');
+  if(!tab) return;
+  activeTab = tab.dataset.tab;
+  [...tabs.children].forEach(c=>c.classList.toggle('active', c===tab));
+  render();
+});
+
+searchInput.addEventListener('input', ()=>{
+  searchQuery = searchInput.value.trim();
+  render();
+});
+
+taskList.addEventListener('click', async e=>{
+  const cb = e.target.closest('.checkbox');
+  const del = e.target.closest('.del-btn');
+  const restore = e.target.closest('.restore-btn');
+
+  if(cb && activeTab === 'active'){
+    const t = tasks.find(x=>x.id===cb.dataset.id);
+    if(!t) return;
+
+    const rect = cb.getBoundingClientRect();
+    burstConfetti(rect.left+rect.width/2, rect.top+rect.height/2);
+    const msgs = ['Harika! 🎉','Süpersin! ✨','Bir tane daha bitti! 🙌','Aferin! 🌟','Devam böyle! 🔥'];
+    showToast(msgs[Math.floor(Math.random()*msgs.length)]);
+    if(!streakData.dates.includes(todayStr())){
+      streakData.dates.push(todayStr());
+    }
+
+    history.push({
+      id: 'h' + Date.now() + Math.random().toString(36).slice(2,7),
+      text: t.text, cat: t.cat, prio: t.prio, completedAt: Date.now(),
+      originTaskId: t.id, repeat: t.repeat || 'none'
+    });
+
+    if(t.repeat && t.repeat !== 'none'){
+      t.due = nextDueDate(t.due, t.repeat);
+    } else {
+      tasks = tasks.filter(x=>x.id!==t.id);
+    }
+    await persist();
+    render();
+  } else if(del){
+    tasks = tasks.filter(x=>x.id!==del.dataset.id);
+    await persist();
+    render();
+  } else if(restore){
+    const h = history.find(x=>x.id===restore.dataset.id);
+    if(!h) return;
+    tasks.push({
+      id: 't' + Date.now() + Math.random().toString(36).slice(2,7),
+      text: h.text, cat: h.cat, prio: h.prio,
+      due: null, time: null, repeat: 'none', done:false, createdAt: Date.now()
+    });
+    history = history.filter(x=>x.id!==h.id);
+    await persist();
+    showToast('Göreve geri döndü ↺');
+    render();
+  }
+});
+
+function burstConfetti(x,y){
+  const layer = document.getElementById('confetti-layer');
+  const colors = ['#FF6B6B','#FFD93D','#06D6A0','#7B61FF','#FF9F1C'];
+  for(let i=0;i<26;i++){
+    const p = document.createElement('div');
+    const size = 6 + Math.random()*5;
+    const color = colors[Math.floor(Math.random()*colors.length)];
+    p.style.cssText = 'position:absolute;left:'+x+'px;top:'+y+'px;width:'+size+'px;height:'+size+'px;'+
+      'background:'+color+';border-radius:'+(Math.random()>0.5?'50%':'2px')+';opacity:1;';
+    layer.appendChild(p);
+    const angle = Math.random()*Math.PI*2;
+    const dist = 60 + Math.random()*90;
+    const dx = Math.cos(angle)*dist;
+    const dy = Math.sin(angle)*dist - 40;
+    const rot = (Math.random()*360)+'deg';
+    const dur = 700 + Math.random()*500;
+    const anim = p.animate([
+      { transform:'translate(0,0) rotate(0deg)', opacity:1 },
+      { transform:'translate('+dx+'px,'+(dy+140)+'px) rotate('+rot+')', opacity:0 }
+    ], { duration: dur, easing:'cubic-bezier(.25,.46,.45,.94)' });
+    anim.onfinish = ()=> p.remove();
+  }
+}
+
+async function init(){
+  syncCode = localStorage.getItem('todo:synccode');
+  if(syncCode){
+    updateSyncBadge();
+    await loadRemoteData();
+  } else {
+    syncBadge.textContent = '🔗 Bağlan';
+    render();
+    openSyncModal();
+  }
+}
+
+dateInput.min = todayStr();
+init();
+</script>
+</body>
+</html>
