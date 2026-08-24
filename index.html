@@ -62,6 +62,13 @@
     font-weight:800; cursor:pointer; white-space:nowrap; transition: all .15s;
   }
   .sync-badge:hover{ background:#E1DBFF; }
+  .notif-badge{
+    display:flex; align-items:center; gap:4px; background: var(--teal-light);
+    color: #04795A; padding:5px 12px; border-radius:999px; font-size:12px;
+    font-weight:800; cursor:pointer; white-space:nowrap; transition: all .15s;
+  }
+  .notif-badge:hover{ background:#c9f2e3; }
+  .notif-badge.off{ background:#F1EFFB; color:var(--ink-soft); }
 
   .sync-overlay{
     position:fixed; inset:0; background:rgba(43,34,80,0.55); display:none;
@@ -183,6 +190,14 @@
   }
   @keyframes pop-in{ from{ opacity:0; transform: translateY(6px) scale(0.98); } to{ opacity:1; transform:none; } }
   .task.done{ opacity:0.55; }
+  .task.overdue{
+    border-color: var(--coral); border-width:2px;
+    background: linear-gradient(135deg, #FFF5F5, var(--card) 40%);
+    box-shadow: 0 6px 18px rgba(255,107,107,0.16);
+  }
+  .badge.overdue-flag{
+    background: var(--coral); color:white;
+  }
   .checkbox{
     width:26px; height:26px; border-radius:50%; border:2.5px solid var(--purple);
     flex-shrink:0; margin-top:2px; cursor:pointer; display:flex; align-items:center;
@@ -252,6 +267,7 @@
     <div class="header-right">
       <div class="streak" id="streakBadge">🔥 0 gün</div>
       <div class="sync-badge" id="syncBadge" title="Senkron kodunu değiştir">🔗 ...</div>
+      <div class="notif-badge off" id="notifBadge" title="Hatırlatıcıları aç/kapat">🔕 Kapalı</div>
     </div>
   </div>
 
@@ -369,6 +385,8 @@ const syncConnectBtn = document.getElementById('syncConnectBtn');
 const syncRandomBtn = document.getElementById('syncRandomBtn');
 const syncCloseBtn = document.getElementById('syncCloseBtn');
 const syncBadge = document.getElementById('syncBadge');
+const notifBadge = document.getElementById('notifBadge');
+let notifEnabled = false;
 
 const REPEAT_INFO = {
   daily: '🔁 Her gün',
@@ -471,6 +489,78 @@ syncCloseBtn.addEventListener('click', closeSyncModal);
 syncBadge.addEventListener('click', openSyncModal);
 syncCodeInput.addEventListener('keydown', e => { if(e.key === 'Enter') syncConnectBtn.click(); });
 
+function updateNotifBadge(){
+  notifBadge.textContent = notifEnabled ? '🔔 Açık' : '🔕 Kapalı';
+  notifBadge.classList.toggle('off', !notifEnabled);
+}
+
+async function toggleNotifications(){
+  if(!('Notification' in window)){
+    showToast('Bu tarayıcı bildirimleri desteklemiyor');
+    return;
+  }
+  if(notifEnabled){
+    notifEnabled = false;
+    localStorage.setItem('todo:notif', 'off');
+    updateNotifBadge();
+    showToast('Hatırlatıcılar kapatıldı');
+    return;
+  }
+  if(Notification.permission === 'granted'){
+    notifEnabled = true;
+    localStorage.setItem('todo:notif', 'on');
+    updateNotifBadge();
+    showToast('Hatırlatıcılar açık 🔔');
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  if(perm === 'granted'){
+    notifEnabled = true;
+    localStorage.setItem('todo:notif', 'on');
+    updateNotifBadge();
+    showToast('Hatırlatıcılar açık 🔔');
+  } else {
+    showToast('Bildirim izni verilmedi');
+  }
+}
+notifBadge.addEventListener('click', toggleNotifications);
+
+function getNotified(){
+  try{ return JSON.parse(localStorage.getItem('todo:notified') || '[]'); }
+  catch(e){ return []; }
+}
+function markNotified(id){
+  const arr = getNotified();
+  if(!arr.includes(id)){ arr.push(id); localStorage.setItem('todo:notified', JSON.stringify(arr)); }
+}
+function clearNotified(id){
+  const arr = getNotified().filter(x=>x!==id);
+  localStorage.setItem('todo:notified', JSON.stringify(arr));
+}
+
+function checkReminders(){
+  if(!notifEnabled || Notification.permission !== 'granted') return;
+  const notified = getNotified();
+  tasks.forEach(t=>{
+    if(!t.due || !t.time) return;
+    if(notified.includes(t.id)) return;
+    if(!isOverdue(t) && !(t.due === todayStr())) return;
+    const [hh,mm] = t.time.split(':').map(Number);
+    const dueDT = new Date(t.due+'T00:00:00');
+    dueDT.setHours(hh, mm, 0, 0);
+    if(new Date() >= dueDT){
+      try{
+        new Notification('⏰ ' + t.text, {
+          body: (CAT_INFO[t.cat] ? CAT_INFO[t.cat].label : '') + (t.prio ? ' · ⭐ Önemli' : ''),
+          tag: t.id
+        });
+      }catch(e){ console.error(e); }
+      markNotified(t.id);
+    }
+  });
+}
+setInterval(checkReminders, 30000);
+
 function nextDueDate(dueStr, repeat){
   const base = dueStr ? new Date(dueStr+'T00:00:00') : new Date();
   if(repeat === 'daily') base.setDate(base.getDate()+1);
@@ -503,6 +593,19 @@ function computeStreak(){
 function matchesSearch(text){
   if(!searchQuery) return true;
   return text.toLocaleLowerCase('tr').includes(searchQuery.toLocaleLowerCase('tr'));
+}
+
+function isOverdue(t){
+  if(!t.due) return false;
+  const today = todayStr();
+  if(t.due < today) return true;
+  if(t.due === today && t.time){
+    const [hh,mm] = t.time.split(':').map(Number);
+    const dueDT = new Date();
+    dueDT.setHours(hh, mm, 0, 0);
+    return new Date() > dueDT;
+  }
+  return false;
 }
 
 function render(){
@@ -553,23 +656,26 @@ function renderActiveList(){
   }
 
   const sorted = [...list].sort((a,b)=>{
+    const aOver = isOverdue(a), bOver = isOverdue(b);
+    if(aOver !== bOver) return aOver ? -1 : 1;
     if(a.prio !== b.prio) return a.prio ? -1 : 1;
     return b.createdAt - a.createdAt;
   });
 
   sorted.forEach(t=>{
     const el = document.createElement('div');
-    el.className = 'task';
+    const overdue = isOverdue(t);
+    el.className = 'task' + (overdue ? ' overdue' : '');
     const cat = CAT_INFO[t.cat];
     let dueHtml = '';
     if(t.due){
-      const overdue = t.due < todayStr();
       const dd = new Date(t.due+'T00:00:00');
       const label = dd.toLocaleDateString('tr-TR', { day:'numeric', month:'short' }) + (t.time ? ', ' + t.time : '');
       dueHtml = '<span class="badge due' + (overdue ? ' overdue' : '') + '">📅 ' + label + '</span>';
     } else if(t.time){
       dueHtml = '<span class="badge due">🕐 ' + t.time + '</span>';
     }
+    const overdueFlag = overdue ? '<span class="badge overdue-flag">⚠️ Süresi geçti</span>' : '';
     const repeatHtml = (t.repeat && t.repeat !== 'none') ? '<span class="badge repeat">' + REPEAT_INFO[t.repeat] + '</span>' : '';
     el.innerHTML =
       '<div class="checkbox" data-id="' + t.id + '">' +
@@ -578,6 +684,7 @@ function renderActiveList(){
       '<div class="task-body">' +
         '<p class="task-text">' + escapeHtml(t.text) + '</p>' +
         '<div class="task-meta">' +
+          overdueFlag +
           '<span class="badge ' + cat.cls + '">' + cat.label + '</span>' +
           (t.prio ? '<span class="badge prio">⭐ Önemli</span>' : '') +
           repeatHtml + dueHtml +
@@ -703,6 +810,7 @@ taskList.addEventListener('click', async e=>{
 
     if(t.repeat && t.repeat !== 'none'){
       t.due = nextDueDate(t.due, t.repeat);
+      clearNotified(t.id);
     } else {
       tasks = tasks.filter(x=>x.id!==t.id);
     }
@@ -752,6 +860,9 @@ function burstConfetti(x,y){
 }
 
 async function init(){
+  notifEnabled = localStorage.getItem('todo:notif') === 'on' && 'Notification' in window && Notification.permission === 'granted';
+  updateNotifBadge();
+
   syncCode = localStorage.getItem('todo:synccode');
   if(syncCode){
     updateSyncBadge();
@@ -761,6 +872,7 @@ async function init(){
     render();
     openSyncModal();
   }
+  checkReminders();
 }
 
 dateInput.min = todayStr();
